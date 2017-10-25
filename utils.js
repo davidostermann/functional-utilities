@@ -19,7 +19,8 @@ exports.asyncPipe = (...fns) => x => (
 
 // currying function from http://www.datchley.name/currying-vs-partial-application/
 // Dave Atchley explains that currying is not often useful because functions are variadic by default in javascript. So we can use partial (that he calls "apply")
-exports.curry = (fn) => {
+// Big use case from Kyle Simpson : Transducer (Front End Master video / Functional Programming V2 by Lyle Simpson - video 36)
+const curry = exports.curry = (fn) => {
   return function curried(...args) {
     return args.length >= fn.length ?
       fn.call(this, ...args) :
@@ -28,3 +29,35 @@ exports.curry = (fn) => {
       };
   };
 }
+
+// this function mutate the array. It should just be used in reducer function that return an array. If we return a new array, it breaks performance.
+// So in reduce function that ruturn an array, you have to use the same array in iteration (so mutating it). 
+// it is unnecessary to use immutable paradigm in this case and it is performance pitfall
+exports.listCombination = (list, v) => {
+  list.push(v)
+  return list
+}
+
+// like a map, but with a reduce
+// the function is curried to be use first in a function composition et secondly as combine function (ex. sum, push in list, ...)
+exports.mapReducer = curry( (mappingFn, combineFn) => (
+  (list, v) => combineFn( list, mappingFn(v) )
+))
+
+// like a filter, but with a reduce
+// the function is curried to be use first in a function composition et secondly as combine function (ex. sum, push in list, ...)
+exports.filterReducer = curry((predicateFn, combineFn) => (
+  (list, v) => (predicateFn(v)) ? combineFn(list, v) : list
+))
+
+/**
+ * Transduce enable to map, filter and reduce (and maybe others) in the same iteration
+ * tranducer : function composition (cf.compose & pipe) - ex. compose( mapReducer(inc), filterReducer(isOdd))
+ * combineFn : function used to combine results of the transducer
+ * initialValue : initial value for combine function
+ * list: the list as the transduce operation's input
+ * return the transduce operation's result
+ */
+exports.transduce = (transducer, combineFn, initialValue, list) => (
+  list.reduce( transducer(combineFn), initialValue)
+)

@@ -2,10 +2,12 @@ exports.add = (a, b) => a + b
 exports.divide = (a, b) => a / b
 exports.inc = (n) => n + 1
 exports.dbl = (n) => n * 2
+exports.isOdd = (n) => n % 2
 exports.push = (arr, ...args) => [...arr, ...args]
 
-const files = ['file1.jpg', 'file2.jpg', 'file3.jpg']
-exports.files = files
+exports.numbers = [2, 5, 8, 11, 14, 17, 20]
+
+const files = exports.files = ['file1.jpg', 'file2.jpg', 'file3.jpg']
 
 exports.finalData = {
   user: { id: '12345' },
